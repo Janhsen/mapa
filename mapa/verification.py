@@ -15,9 +15,7 @@ def _verify_input_is_valid(input: str):
     input_path = Path(input)
     if not input_path.is_file():
         raise FileNotFoundError(f"input file: '{input}' does not seem to be a file")
-    if input_path.suffix in conf.SUPPORTED_INPUT_FORMAT:
-        pass  # ok
-    else:
+    if input_path.suffix not in conf.SUPPORTED_INPUT_FORMAT:
         raise IOError(
             f"input file '{input}' does not seem to be a tiff file, only {conf.SUPPORTED_INPUT_FORMAT} are supported."
         )

@@ -95,11 +95,10 @@ def cut_array_to_format(array: npt.ArrayLike, cut_to_format_ratio: float) -> np.
         return _cut_array_to_square(array)
     if cut_to_format_ratio == 0.0:
         raise ValueError("Cannot cut array to format with ratio 0.0. Choose a format ratio between 0.0 and 1.0")
-    else:
-        if cut_to_format_ratio > 1.0:
+    if cut_to_format_ratio > 1.0:
             # ensure ratio is between 0.0 and 1.0 and transpose ratio
-            cut_to_format_ratio = cut_to_format_ratio**-1
-        return _cut_array_to_rectangular_shape(array, cut_to_format_ratio)
+        cut_to_format_ratio **= -1
+    return _cut_array_to_rectangular_shape(array, cut_to_format_ratio)
 
 
 def _get_coordinate_of_pixel(row: int, col: int, tiff: DatasetReader) -> Tuple[float]:
@@ -121,9 +120,7 @@ def determine_elevation_scale(tiff: DatasetReader, model_size: int) -> float:
     # get distance in meter between the two coordinates
     distance = haversine(top_left_coor, top_right_coor, unit="m")
 
-    # to find out what 1 meter in reality corresponds to in the model, we need to divide the model size by the distance
-    one_meter_in_model = model_size / distance
-    return one_meter_in_model
+    return model_size / distance
 
 
 def merge_tiffs(tiffs: List[Path], bbox_hash: str, cache_dir: Path) -> Path:

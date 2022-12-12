@@ -70,13 +70,13 @@ def dem2stl(
     model_size: int = conf.DEFAULT_MODEL_OUTPUT_SIZE_IN_MM,
     cut_to_format_ratio: Union[None, float] = None,
 ) -> None:
-    if demo is False and input is None:
+    if not demo and input is None:
         log.error("💥  Either of --input or --demo is required, try --help.")
         raise click.Abort()
-    if demo and input:
-        log.error("💥  Only one of --input or --demo is allowed, try --help.")
-        raise click.Abort()
     if demo:
+        if input:
+            log.error("💥  Only one of --input or --demo is allowed, try --help.")
+            raise click.Abort()
         input = conf.DEMO_TIFF_PATH
         max_res = True
         z_scale = 2.5

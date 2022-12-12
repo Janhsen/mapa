@@ -49,7 +49,7 @@ def _assert_dimensions_equal(stl_a: Path, stl_b: Path, negate: bool = False) -> 
     dim_a = get_dimensions_of_stl_file(stl_a)
     dim_b = get_dimensions_of_stl_file(stl_b)
     if negate:
-        assert not dim_a == dim_b, f"dimensions not equal: {dim_a} != {dim_b}"
+        assert dim_a != dim_b, f"dimensions not equal: {dim_a} != {dim_b}"
     else:
         assert dim_a == dim_b, f"dimensions not equal: {dim_a} != {dim_b}"
 

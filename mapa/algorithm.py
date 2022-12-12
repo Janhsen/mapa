@@ -136,16 +136,13 @@ def _create_raster(array: npt.ArrayLike, max_x: int, max_y: int) -> np.ndarray:
     max_x, max_y = array.shape
     raster = np.zeros((max_x + 1, max_y + 1))
     # loop over raster elements to determine z value of raster elements
-    for ix in range(0, raster.shape[0]):
-        for iy in range(0, raster.shape[1]):
+    for ix in range(raster.shape[0]):
+        for iy in range(raster.shape[1]):
             # special treatment of first and last rows/cols
-            if ix >= max_x or iy >= max_y:
-                if ix >= max_x and iy < max_y:
-                    raster[ix][iy] = array[ix - 1][iy]
-                elif iy >= max_y and ix < max_x:
-                    raster[ix][iy] = array[ix][iy - 1]
-                else:
-                    raster[ix][iy] = array[ix - 1][iy - 1]
+            if ix >= max_x:
+                raster[ix][iy] = array[ix - 1][iy] if iy < max_y else array[ix - 1][iy - 1]
+            elif iy >= max_y:
+                raster[ix][iy] = array[ix][iy - 1]
             elif ix == 0 or iy == 0:
                 raster[ix][iy] = array[ix][iy]
             else:
@@ -166,66 +163,65 @@ def _compute_triangles_of_3d_surface(
     z_offset: float,
 ) -> np.ndarray:
     triangles = np.full((max_x, max_y, 4, 3, 3), -1.0, dtype=np.float64)
-    for ix in range(0, max_x):
-        for iy in range(0, max_y):
+    for ix in range(max_x):
+        for iy in range(max_y):
             if ix > max_x or iy > max_y:
                 continue
-            else:
-                # top triangle
-                # first vertex
-                triangles[ix, iy, 0, 0, 0] = (ix + 1 / 2) * x_scale
-                triangles[ix, iy, 0, 0, 1] = (iy + 1 / 2) * y_scale
-                triangles[ix, iy, 0, 0, 2] = (array[ix, iy]) * z_scale + z_offset
-                # second vertex
-                triangles[ix, iy, 0, 1, 0] = ix * x_scale
-                triangles[ix, iy, 0, 1, 1] = iy * y_scale
-                triangles[ix, iy, 0, 1, 2] = (raster[ix, iy]) * z_scale + z_offset
-                # third vertex
-                triangles[ix, iy, 0, 2, 0] = (ix + 1) * x_scale
-                triangles[ix, iy, 0, 2, 1] = iy * y_scale
-                triangles[ix, iy, 0, 2, 2] = (raster[ix + 1, iy]) * z_scale + z_offset
+            # top triangle
+            # first vertex
+            triangles[ix, iy, 0, 0, 0] = (ix + 1 / 2) * x_scale
+            triangles[ix, iy, 0, 0, 1] = (iy + 1 / 2) * y_scale
+            triangles[ix, iy, 0, 0, 2] = (array[ix, iy]) * z_scale + z_offset
+            # second vertex
+            triangles[ix, iy, 0, 1, 0] = ix * x_scale
+            triangles[ix, iy, 0, 1, 1] = iy * y_scale
+            triangles[ix, iy, 0, 1, 2] = (raster[ix, iy]) * z_scale + z_offset
+            # third vertex
+            triangles[ix, iy, 0, 2, 0] = (ix + 1) * x_scale
+            triangles[ix, iy, 0, 2, 1] = iy * y_scale
+            triangles[ix, iy, 0, 2, 2] = (raster[ix + 1, iy]) * z_scale + z_offset
 
-                # left triangle
-                # first vertex
-                triangles[ix, iy, 1, 0, 0] = ix * x_scale
-                triangles[ix, iy, 1, 0, 1] = (iy + 1) * y_scale
-                triangles[ix, iy, 1, 0, 2] = (raster[ix, iy + 1]) * z_scale + z_offset
-                # second vertex
-                triangles[ix, iy, 1, 1, 0] = ix * x_scale
-                triangles[ix, iy, 1, 1, 1] = iy * y_scale
-                triangles[ix, iy, 1, 1, 2] = (raster[ix, iy]) * z_scale + z_offset
-                # third vertex
-                triangles[ix, iy, 1, 2, 0] = (ix + 1 / 2) * x_scale
-                triangles[ix, iy, 1, 2, 1] = (iy + 1 / 2) * y_scale
-                triangles[ix, iy, 1, 2, 2] = (array[ix, iy]) * z_scale + z_offset
+            # left triangle
+            # first vertex
+            triangles[ix, iy, 1, 0, 0] = ix * x_scale
+            triangles[ix, iy, 1, 0, 1] = (iy + 1) * y_scale
+            triangles[ix, iy, 1, 0, 2] = (raster[ix, iy + 1]) * z_scale + z_offset
+            # second vertex
+            triangles[ix, iy, 1, 1, 0] = ix * x_scale
+            triangles[ix, iy, 1, 1, 1] = iy * y_scale
+            triangles[ix, iy, 1, 1, 2] = (raster[ix, iy]) * z_scale + z_offset
+            # third vertex
+            triangles[ix, iy, 1, 2, 0] = (ix + 1 / 2) * x_scale
+            triangles[ix, iy, 1, 2, 1] = (iy + 1 / 2) * y_scale
+            triangles[ix, iy, 1, 2, 2] = (array[ix, iy]) * z_scale + z_offset
 
-                # bottom triangle
-                # first vertex
-                triangles[ix, iy, 2, 0, 0] = (ix + 1) * x_scale
-                triangles[ix, iy, 2, 0, 1] = (iy + 1) * y_scale
-                triangles[ix, iy, 2, 0, 2] = (raster[ix + 1, iy + 1]) * z_scale + z_offset
-                # second vertex
-                triangles[ix, iy, 2, 1, 0] = ix * x_scale
-                triangles[ix, iy, 2, 1, 1] = (iy + 1) * y_scale
-                triangles[ix, iy, 2, 1, 2] = (raster[ix, iy + 1]) * z_scale + z_offset
-                # third vertex
-                triangles[ix, iy, 2, 2, 0] = (ix + 1 / 2) * x_scale
-                triangles[ix, iy, 2, 2, 1] = (iy + 1 / 2) * y_scale
-                triangles[ix, iy, 2, 2, 2] = (array[ix, iy]) * z_scale + z_offset
+            # bottom triangle
+            # first vertex
+            triangles[ix, iy, 2, 0, 0] = (ix + 1) * x_scale
+            triangles[ix, iy, 2, 0, 1] = (iy + 1) * y_scale
+            triangles[ix, iy, 2, 0, 2] = (raster[ix + 1, iy + 1]) * z_scale + z_offset
+            # second vertex
+            triangles[ix, iy, 2, 1, 0] = ix * x_scale
+            triangles[ix, iy, 2, 1, 1] = (iy + 1) * y_scale
+            triangles[ix, iy, 2, 1, 2] = (raster[ix, iy + 1]) * z_scale + z_offset
+            # third vertex
+            triangles[ix, iy, 2, 2, 0] = (ix + 1 / 2) * x_scale
+            triangles[ix, iy, 2, 2, 1] = (iy + 1 / 2) * y_scale
+            triangles[ix, iy, 2, 2, 2] = (array[ix, iy]) * z_scale + z_offset
 
-                # right triangle
-                # first vertex
-                triangles[ix, iy, 3, 0, 0] = (ix + 1 / 2) * x_scale
-                triangles[ix, iy, 3, 0, 1] = (iy + 1 / 2) * y_scale
-                triangles[ix, iy, 3, 0, 2] = (array[ix, iy]) * z_scale + z_offset
-                # second vertex
-                triangles[ix, iy, 3, 1, 0] = (ix + 1) * x_scale
-                triangles[ix, iy, 3, 1, 1] = iy * y_scale
-                triangles[ix, iy, 3, 1, 2] = (raster[ix + 1, iy]) * z_scale + z_offset
-                # third vertex
-                triangles[ix, iy, 3, 2, 0] = (ix + 1) * x_scale
-                triangles[ix, iy, 3, 2, 1] = (iy + 1) * y_scale
-                triangles[ix, iy, 3, 2, 2] = (raster[ix + 1, iy + 1]) * z_scale + z_offset
+            # right triangle
+            # first vertex
+            triangles[ix, iy, 3, 0, 0] = (ix + 1 / 2) * x_scale
+            triangles[ix, iy, 3, 0, 1] = (iy + 1 / 2) * y_scale
+            triangles[ix, iy, 3, 0, 2] = (array[ix, iy]) * z_scale + z_offset
+            # second vertex
+            triangles[ix, iy, 3, 1, 0] = (ix + 1) * x_scale
+            triangles[ix, iy, 3, 1, 1] = iy * y_scale
+            triangles[ix, iy, 3, 1, 2] = (raster[ix + 1, iy]) * z_scale + z_offset
+            # third vertex
+            triangles[ix, iy, 3, 2, 0] = (ix + 1) * x_scale
+            triangles[ix, iy, 3, 2, 1] = (iy + 1) * y_scale
+            triangles[ix, iy, 3, 2, 2] = (raster[ix + 1, iy + 1]) * z_scale + z_offset
 
     return triangles.reshape((max_x * max_y * 4, 3, 3))
 
@@ -237,8 +233,8 @@ def _compute_triangles_of_body_side(
     triangles = np.full((max_x * 4 + max_y * 4, 3, 3), -1.0, dtype=np.float64)
     cnt = 0
 
-    for ix in range(0, max_x):
-        for iy in range(0, max_y):
+    for ix in range(max_x):
+        for iy in range(max_y):
             if ix == 0:  # first row
                 # triangle with two points at top of mesh
                 # first vertex
@@ -357,7 +353,7 @@ def _compute_triangles_of_body_side(
 def _compute_triangles_of_bottom(max_x: int, max_y: int, x_scale: float, y_scale: float) -> np.ndarray:
     # first row
     fr_triangles = np.full((max_x - 1, 3, 3), -1.0, dtype=np.float64)
-    for i, cnt in enumerate(range(0, max_x - 1)):
+    for i, cnt in enumerate(range(max_x - 1)):
         fr_triangles[i, 0, 0] = cnt * x_scale
         fr_triangles[i, 0, 1] = 0
         fr_triangles[i, 0, 2] = 0
@@ -396,7 +392,7 @@ def _compute_triangles_of_bottom(max_x: int, max_y: int, x_scale: float, y_scale
 
     # last col
     lc_triangles = np.full((max_y - 1, 3, 3), -1.0, dtype=np.float64)
-    for i, cnt in enumerate(range(0, max_y - 1)):
+    for i, cnt in enumerate(range(max_y - 1)):
         lc_triangles[i, 0, 0] = max_x * x_scale
         lc_triangles[i, 0, 1] = cnt * y_scale
         lc_triangles[i, 0, 2] = 0
@@ -435,11 +431,10 @@ def _determine_z_offset(z_offset: Union[None, float], minimum: float, elevation_
     if z_offset is None:
         # using the natural height, i.e. islands will have an z_offset of ~0 and mountains will have a larger z_offset
         return minimum * elevation_scale
-    else:
-        if z_offset < 0:
-            log.warning("☝️  Warning: Be careful using negative z_offsets, as it might break your 3D model.")
-        # subtract scaled minimum from z_offset to ensure the input z_offset will remain
-        return z_offset - minimum * elevation_scale
+    if z_offset < 0:
+        log.warning("☝️  Warning: Be careful using negative z_offsets, as it might break your 3D model.")
+    # subtract scaled minimum from z_offset to ensure the input z_offset will remain
+    return z_offset - minimum * elevation_scale
 
 
 def compute_all_triangles(
