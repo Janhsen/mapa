@@ -27,19 +27,17 @@ def test_split_array_into_tiles__square() -> None:
         ]
     )
     blocks = split_array_into_tiles(three_by_three, tiles_format=TileFormat(x=3, y=3))
-    expected = list(
-        [
-            np.array([[1]]),
-            np.array([[2]]),
-            np.array([[3]]),
-            np.array([[5]]),
-            np.array([[6]]),
-            np.array([[7]]),
-            np.array([[9]]),
-            np.array([[0]]),
-            np.array([[1]]),
-        ]
-    )
+    expected = [
+        np.array([[1]]),
+        np.array([[2]]),
+        np.array([[3]]),
+        np.array([[5]]),
+        np.array([[6]]),
+        np.array([[7]]),
+        np.array([[9]]),
+        np.array([[0]]),
+        np.array([[1]]),
+    ]
 
     np.testing.assert_array_equal(expected, blocks)
 

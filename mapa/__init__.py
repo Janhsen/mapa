@@ -67,9 +67,8 @@ def convert_array_to_stl(
 def _get_desired_size(array: np.ndarray, x: float, y: float, cut_to_format_ratio: Union[None, float]) -> ModelSize:
     if cut_to_format_ratio:
         return ModelSize(x=x, y=y * cut_to_format_ratio)
-    else:
-        rows, cols = array.shape
-        return ModelSize(x=x, y=y / rows * cols)
+    rows, cols = array.shape
+    return ModelSize(x=x, y=y / rows * cols)
 
 
 def convert_tiff_to_stl(
@@ -124,11 +123,10 @@ def _get_tiff_for_bbox(
     bbox_geojson: dict, allow_caching: bool, cache_dir: Path, progress_bar: Union[None, ProgressBar] = None
 ) -> Path:
     bbox_hash = get_hash_of_geojson(bbox_geojson)
-    if tiff_for_bbox_is_cached(bbox_hash, cache_dir) and allow_caching:
-        log.info("🚀  using cached tiff!")
-        return path_to_clipped_tiff(bbox_hash, cache_dir)
-    else:
+    if not tiff_for_bbox_is_cached(bbox_hash, cache_dir) or not allow_caching:
         return _fetch_merge_and_clip_tiffs(bbox_geojson, bbox_hash, allow_caching, cache_dir, progress_bar)
+    log.info("🚀  using cached tiff!")
+    return path_to_clipped_tiff(bbox_hash, cache_dir)
 
 
 def convert_bbox_to_stl(

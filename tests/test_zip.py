@@ -29,11 +29,8 @@ def test_create_zip_archive(file_a, file_b, tmp_path) -> None:
     checksum_b = md5_sum(file_b)
 
     # get file content
-    with open(file_a) as f:
-        content_a = f.read()
-    with open(file_b) as f:
-        content_b = f.read()
-
+    content_a = Path(file_a).read_text()
+    content_b = Path(file_b).read_text()
     # zip files to archive
     output = Path(tmp_path) / "output.zip"
     zip_file = create_zip_archive(files=[file_a, file_b], output_file=output)

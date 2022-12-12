@@ -521,5 +521,5 @@ def test_custom_caching_path(output_file, geojson_bbox, tmp_path) -> None:
     assert duration_cached < duration_uncached / 2
 
     # verify certain files are present in the custom cache_dir
-    assert len([stl for stl in Path(tmp_path).glob("*.stl")]) == 2
-    assert len([stl for stl in Path(tmp_path).glob("*.tiff")]) == 2
+    assert len(list(Path(tmp_path).glob("*.stl"))) == 2
+    assert len(list(Path(tmp_path).glob("*.tiff"))) == 2
